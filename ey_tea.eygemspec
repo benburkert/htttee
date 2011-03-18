@@ -1,0 +1,5 @@
+EY::Gem::Specification.new do |s|
+  s.description = s.summary = "tee as a service"
+
+  s.add_server_dependency 'goliath'
+end
