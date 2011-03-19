@@ -1,21 +1,20 @@
 module EY
   module Tea
-    class Api
-      def initialize(get = Get.new, post = Post.new)
-        @get, @post = get, post
-      end
+    class Api < Goliath::API
 
-      def call(env)
+      def response(env)
         case env['REQUEST_METHOD'].upcase
-        when 'GET'  then @get.call(env)
-        when 'POST' then @post.call(env)
+        when 'GET'  then get(env)
+        when 'POST' then post(env)
         end
       end
 
-      class Get < Goliath::API
+      def get(env)
+        [200, {}, '']
       end
 
-      class Post < Goliath::API
+      def post(env)
+        [200, {}, '']
       end
     end
   end

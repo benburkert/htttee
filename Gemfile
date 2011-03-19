@@ -10,12 +10,16 @@ source 'http://geminst:hoa3laml@gems-internal.engineyard.com/'
 
 ## Server Dependencies
 
-gem 'goliath'
+gem 'goliath', :path => 'goliath'
 
 ## Client Dependencies
 
-
+gem 'rack-client'
 
 ## Group Dependencies
 
-
+group :test do
+  gem 'rspec'
+  gem 'rake'
+  gem 'ruby-debug19'
+end
