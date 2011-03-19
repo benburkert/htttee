@@ -1,40 +1,27 @@
 module EY
   module Tea
     class MockGoliath
-      def initialize(app, api = Goliath::API.last_api)
+      def initialize(app, api)
         @app, @api = app, api
       end
 
       def call(env)
         env['rack.logger'] ||= Logger.new($stdout)
 
-        MockConnection.new(@app, @api, env).yield
-      end
-    end
+        goliath_env = Goliath::Env.new.merge(env)
 
-    class MockConnection
-      attr_accessor :app, :api, :env
+        # save the fiber for the block
+        fiber = Fiber.current
 
-      def initialize(app, api, env)
-        @app, @api, @env = app, api, Goliath::Env.new.merge(env)
-      end
+        goliath_env[Goliath::Constants::ASYNC_CALLBACK] = proc do |tuple|
+          # send the tuple back to be returned
+          fiber.resume tuple
+        end
 
-      def yield
-        @fiber = Fiber.current
+        @app.call(goliath_env)
 
-        @env[Goliath::Constants::ASYNC_CALLBACK] = method(:callback)
-        @app.call(@env)
-
-
-        Fiber.yield while @tuple.nil?
-
-        @tuple
-      end
-
-      def callback(tuple)
-        @tuple = tuple
-
-        @fiber.transfer
+        # yield and save the stack
+        return Fiber.yield
       end
     end
   end

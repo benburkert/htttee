@@ -16,7 +16,7 @@ module EY
 
       def self.mock_app
         Rack::Builder.app do
-          use MockGoliath
+          use MockGoliath, Server.api
           run Server.api
         end
       end
