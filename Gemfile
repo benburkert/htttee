@@ -11,6 +11,7 @@ source 'http://geminst:hoa3laml@gems-internal.engineyard.com/'
 ## Server Dependencies
 
 gem 'goliath', :path => 'goliath'
+gem 'em-redis'
 
 ## Client Dependencies
 

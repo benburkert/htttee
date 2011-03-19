@@ -4,6 +4,7 @@ EY::Gem::Specification.new do |s|
   s.add_client_dependency 'rack-client'
 
   s.add_server_dependency 'goliath'
+  s.add_server_dependency 'em-redis'
 
   s.add_test_dependency 'rspec'
   s.add_test_dependency 'rake'

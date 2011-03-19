@@ -1,5 +1,6 @@
 require 'logger'
 require 'goliath'
+require 'em-synchrony/em-redis'
 
 module EY
   module Tea
@@ -10,13 +11,13 @@ module EY
       end
 
       def self.api
-        Api.new
+        Api.new EM::Protocols::Redis.connect
       end
 
       def self.mock_app
         Rack::Builder.app do
           use MockGoliath
-          run Api.new
+          run Server.api
         end
       end
 

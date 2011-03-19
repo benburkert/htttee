@@ -6,7 +6,7 @@ describe EY::Tea::Server do
   describe "POST /:uuid" do
     it "accepts single part posts" do
       subject.post('/123', {'Content-Type' => 'text/plain'}, 'Hello World!')
-      subject.get('/123').body.should == 'Hello World!'
+      subject.get('/123').body.should == ['Hello World!']
     end
   end
 end

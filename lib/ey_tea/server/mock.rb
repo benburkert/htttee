@@ -16,23 +16,24 @@ module EY
       attr_accessor :app, :api, :env
 
       def initialize(app, api, env)
-        @app, @api, @env = app, api, env
+        @app, @api, @env = app, api, Goliath::Env.new.merge(env)
       end
 
       def yield
+        @fiber = Fiber.current
 
-        @fiber = Fiber.new {
-          @env[Goliath::Constants::ASYNC_CALLBACK] = method(:callback)
-          @app.call(@env)
-        }
+        @env[Goliath::Constants::ASYNC_CALLBACK] = method(:callback)
+        @app.call(@env)
 
-        @fiber.resume
+
+        Fiber.yield while @tuple.nil?
 
         @tuple
       end
 
       def callback(tuple)
         @tuple = tuple
+
         @fiber.transfer
       end
     end
