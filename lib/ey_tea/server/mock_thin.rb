@@ -7,7 +7,7 @@ module EY
         end
 
         def call(env, &block)
-          if env['REQUEST_METHOD'] == 'POST'
+          if env['REQUEST_METHOD'] == 'POST' && !env['rack.input'].is_a?(DeferrableBody)
             rack_input = DeferrableBody.new
 
             env['rack.input'].each do |chunk|
