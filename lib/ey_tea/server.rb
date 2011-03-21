@@ -1,6 +1,6 @@
-require 'logger'
-require 'goliath'
-require 'em-synchrony/em-redis'
+require 'thin'
+require 'sinatra/base'
+require 'em-redis'
 
 module EY
   module Tea
@@ -16,7 +16,7 @@ module EY
 
       def self.mock_app
         Rack::Builder.app do
-          use MockGoliath, Server.api
+          use MockThin
           run Server.api
         end
       end
@@ -34,4 +34,5 @@ end
 
 require 'ey_tea/server/api'
 
-require 'ey_tea/server/mock'
+require 'ey_tea/server/deferrable_body'
+require 'ey_tea/server/mock_thin'

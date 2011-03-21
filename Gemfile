@@ -10,12 +10,13 @@ source 'http://geminst:hoa3laml@gems-internal.engineyard.com/'
 
 ## Server Dependencies
 
-gem 'goliath', :path => 'goliath'
+gem 'sinatra'
+gem 'thin'
 gem 'em-redis'
 
 ## Client Dependencies
 
-gem 'rack-client'
+gem 'rack-client', :path => '.'
 
 ## Group Dependencies
 
