@@ -13,6 +13,7 @@ source 'http://geminst:hoa3laml@gems-internal.engineyard.com/'
 gem 'sinatra'
 gem 'thin'
 gem 'em-redis'
+gem 'yajl-ruby'
 
 ## Client Dependencies
 

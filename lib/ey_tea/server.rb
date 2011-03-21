@@ -1,4 +1,5 @@
 require 'thin'
+require 'yajl'
 require 'sinatra/base'
 require 'em-redis'
 
@@ -11,7 +12,7 @@ module EY
       end
 
       def self.api
-        Api.new EM::Protocols::Redis.connect
+        Api.new EM::Protocols::Redis.connect, PubSubRedis.connect
       end
 
       def self.mock_app
@@ -31,6 +32,8 @@ module EY
     end
   end
 end
+
+require 'ey_tea/server/pubsub_redis'
 
 require 'ey_tea/server/api'
 

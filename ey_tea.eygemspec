@@ -6,6 +6,7 @@ EY::Gem::Specification.new do |s|
   s.add_server_dependency 'sinatra'
   s.add_server_dependency 'thin'
   s.add_server_dependency 'em-redis'
+  s.add_server_dependency 'yajl-ruby'
 
   s.add_test_dependency 'rspec'
   s.add_test_dependency 'rake'
