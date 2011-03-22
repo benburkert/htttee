@@ -1,9 +1,10 @@
 require 'spec_helper'
 
+
 describe EY::Tea::Server do
   subject { @server_client }
   let(:uuid) { Time.now.to_f }
-  let(:url) { "/#{uuid}" }
+  let(:url) { "/#{Digest::SHA2.hexdigest(uuid.to_s)}" }
 
   describe "POST /:uuid" do
     it "accepts single part posts" do
@@ -122,6 +123,160 @@ describe EY::Tea::Server do
 
         ""
       end)
+    end
+
+    it "can stream data written after the client reads data" do
+      post_body = MultiPartBody.new
+
+      post(url, {'Content-Type' => 'text/plain'}, post_body) do |status, headers, body|
+        status.should == 204
+      end
+
+      post_body.add_part(&step do
+        get(url) do |status, headers, body|
+          status.should == 200
+          first_read = true
+
+          body.each(&step do |chunk|
+            if first_read
+              chunk.should == 'Part 1'
+              first_read = false
+
+              post_body.call ['Part 2']
+            else
+              chunk.should == 'Part 2'
+              post_body.succeed
+            end
+          end)
+        end
+
+        'Part 1'
+      end)
+    end
+
+    it 'can stream a bit of data to a few clients' do
+      post_body = MultiPartBody.new
+
+      content_lengths = Array.new(100, 0)
+      data_size = 0
+
+      post(url, {'Content-Type' => 'text/plain'}, post_body) do |status, headers, body|
+        status.should == 204
+      end
+
+      100.times.each do |i|
+        get(url) do |status, headers, body|
+
+          body.each do |chunk|
+            content_lengths[i] += chunk.size unless chunk.nil?
+          end
+
+          body.callback(&step { })
+        end
+      end
+
+      check_content_lengths = lambda(&step do
+        EM.next_tick do
+          if content_lengths.all? {|cl| cl == data_size }
+            post_body.succeed
+          else
+            check_content_lengths.call
+          end
+        end
+      end)
+
+      check_content_lengths.call
+
+      ('a'..'z').each do |char|
+        post_body.call [char * 1024]
+        data_size += 1024
+      end
+    end
+
+    it 'can stream a bit of data to a bunch of clients' do
+      post_body = MultiPartBody.new
+
+      content_lengths = Array.new(100, 0)
+      data_size = 0
+
+      post(url, {'Content-Type' => 'text/plain'}, post_body) do |status, headers, body|
+        status.should == 204
+      end
+
+      1000.times do
+        get(url) do |status, headers, body|
+          content_length = 0
+
+          body.each do |chunk|
+            content_length += chunk.size unless chunk.nil?
+          end
+
+          body.callback(&step {})
+        end
+      end
+
+      check_content_lengths = lambda(&step do
+        EM.next_tick do
+          if content_lengths.all? {|cl| cl == data_size }
+            post_body.succeed
+          else
+            check_content_lengths.call
+          end
+        end
+      end)
+
+      check_content_lengths.call
+
+      ('a'..'z').each do |char|
+        post_body.call [char * 1024]
+        data_size += 1024
+      end
+
+      post_body.succeed
+    end
+
+    it 'can stream a large amount of data to a few clients' do
+      post_body = MultiPartBody.new
+
+      content_lengths = Array.new(100, 0)
+      data_size = 0
+
+      post(url, {'Content-Type' => 'text/plain'}, post_body) do |status, headers, body|
+        status.should == 204
+      end
+
+      3.times do
+        get(url) do |status, headers, body|
+          content_length = 0
+
+          body.each do |chunk|
+            content_length += chunk.size unless chunk.nil?
+          end
+
+          body.callback(&step {})
+        end
+      end
+
+      check_content_lengths = lambda(&step do
+        EM.next_tick do
+          if content_lengths.all? {|cl| cl == data_size }
+            post_body.succeed
+          else
+            check_content_lengths.call
+          end
+        end
+      end)
+
+      check_content_lengths.call
+
+      ('a'..'z').each do |char|
+        100.times do
+          post_body.call [char * 1024]
+          data_size += 1024
+        end
+      end
+
+      post_body.succeed
     end
   end
 end

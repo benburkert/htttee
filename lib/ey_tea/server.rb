@@ -3,6 +3,8 @@ require 'yajl'
 require 'sinatra/base'
 require 'em-redis'
 
+EM.epoll
+
 module EY
   module Tea
     module Server
@@ -11,8 +13,8 @@ module EY
         mocking? ? mock_app : api
       end
 
-      def self.api
-        Api.new EM::Protocols::Redis.connect, PubSubRedis.connect
+      def self.api(host = (ENV['REDIS_HOST'] || 'localhost' ), port = (ENV['REDIS_PORT'] || 6379).to_i)
+        Api.new(host, port)
       end
 
       def self.mock_app
@@ -32,6 +34,8 @@ module EY
     end
   end
 end
+
+require 'ey_tea/server/ext/em-redis'
 
 require 'ey_tea/server/pubsub_redis'
 

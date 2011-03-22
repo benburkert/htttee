@@ -25,4 +25,5 @@ group :test do
   gem 'rspec'
   gem 'rake'
   gem 'ruby-debug19'
+  gem 'rbtrace'
 end

@@ -7,12 +7,12 @@ module EY
 
         AsyncResponse = [-1, {}, []].freeze
 
-        attr_accessor :redis, :pubsub, :subscribe_callback
+        attr_accessor :redis
 
-        def initialize(redis, pubsub)
+        def initialize(host, port)
           super()
-          @redis, @pubsub = redis, pubsub
-          @subscribe_callback = Hash.new {|h,k| h[k] = [] }
+          @host, @port = host, port
+          @redis = EM::Protocols::Redis.connect(@host, @port)
         end
 
         post '/:uuid' do |uuid|
@@ -22,11 +22,7 @@ module EY
 
           rack_input(rack_env).each do |chunk|
             unless chunk.empty?
-              redis.append(data_key(uuid), chunk)
-              publish(channel(uuid), STREAMING, chunk) do |*a|
-                debugger
-                a
-              end
+              redis.pipeline(['append', data_key(uuid), chunk], ['publish', channel(uuid), Yajl::Encoder.encode([STREAMING, chunk])])
             end
           end
 
@@ -34,10 +30,7 @@ module EY
             async_callback(rack_env).call [204, {}, body]
 
             redis.set(state_key(uuid), FIN) do
-              publish(channel(uuid), FIN) do |*a|
-                debugger
-                a
-              end
+              finish(channel(uuid))
               body.succeed
             end
           end
@@ -62,21 +55,26 @@ module EY
 
               body.succeed
             when STREAMING
-              rack_env['async.callback'].call [200, {}, body]
 
               redis.multi_get state_key(uuid), data_key(uuid) do |state, data|
-                body.call [data] unless data.nil? || data.empty?
-                body.succeed if state == FIN
-              end
 
-              subscribe channel(uuid) do |type, message, *extra|
-                case type
-                when FIN then body.succeed
+                if state == FIN
+                  rack_env['async.callback'].call [200, {}, body]
+                  body.call [data] unless data.nil? || data.empty?
+                  body.succeed
                 else
-                  debugger
-                  type
+                  subscribe channel(uuid) do |type, message, *extra|
+                    case type
+                    when SUBSCRIBE  then
+                      rack_env['async.callback'].call [200, {}, body]
+                      body.call [data] unless data.nil? || data.empty?
+                    when FIN        then body.succeed
+                    when STREAMING  then body.call [message]
+                    end
+                  end
                 end
               end
+
             when FIN
               rack_env['async.callback'].call [200, {}, body]
 
@@ -111,14 +109,36 @@ module EY
             rack_env['async.callback']
           end
 
-          def publish(channel, *data)
-            redis.publish channel, Yajl::Encoder.encode(data)
+          def publish(channel, data)
+            redis.publish channel, Yajl::Encoder.encode([STREAMING, data])
+          end
+
+          def finish(channel)
+            redis.publish channel, Yajl::Encoder.encode([FIN])
           end
 
           def subscribe(channel, &block)
-            pubsub.subscribe channel do |type, chan, data|
-              block.call(*Yajl::Parser.parse(data)) if type.upcase == MESSAGE && channel == chan
+            conn = pubsub
+            conn.subscribe channel do |type, chan, data|
+              case type.upcase
+              when SUBSCRIBE then block.call(SUBSCRIBE, chan)
+              when MESSAGE
+                state, data = Yajl::Parser.parse(data)
+                case state
+                when STREAMING  then block.call(STREAMING, data)
+                when FIN
+                  conn.unsubscribe channel
+                  block.call(FIN, data)
+                end
+              else
+                debugger
+                ''
+              end
             end
+          end
+
+          def pubsub
+            EM::Protocols::PubSubRedis.connect(@host, @port)
           end
         end
       end
