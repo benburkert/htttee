@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-
 describe EY::Tea::Server do
   subject { @server_client }
   let(:uuid) { Time.now.to_f }

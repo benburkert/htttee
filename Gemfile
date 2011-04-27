@@ -14,10 +14,11 @@ gem 'sinatra'
 gem 'thin'
 gem 'em-redis'
 gem 'yajl-ruby'
+gem 'rack-mux'
 
 ## Client Dependencies
 
-gem 'rack-client', :path => '.'
+gem 'rack-client', :path => 'rack-client'
 
 ## Group Dependencies
 
@@ -25,5 +26,4 @@ group :test do
   gem 'rspec'
   gem 'rake'
   gem 'ruby-debug19'
-  gem 'rbtrace'
 end

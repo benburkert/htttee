@@ -5,21 +5,16 @@ require 'ey_tea/client'
 
 require 'digest/sha2'
 
-require File.join(File.dirname(__FILE__), 'tea_helper')
-
 EY::Tea::Server.mock!
-
-require 'rbtrace'
+Thin::Logging.debug = Thin::Logging.trace = true
 
 RSpec.configure do |config|
   config.color_enabled = config.tty = true #Force ANSI colors
-  config.include TeaHelper
 
   config.around :each do |callback|
-    run do
-      EM::Protocols::Redis.connect.flush_all
-      @server_client = Rack::Client::Base.new EY::Tea::Server.app
-      callback.run
-    end
+    EY::Tea::Server.reset!
+
+    @client = EY::Tea::Client.new(:endpoint => EY::Tea::Server.mock_uri.to_s)
+    callback.run
   end
 end
