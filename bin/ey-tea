@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require 'trollop'
+require 'ey_tea/client'
+
+class MultiplexedIO < IO
+  instance_methods.each { |m| undef_method m unless (m =~ /^__/ || m =~ /^object_id$/ ) }
+
+  def initialize(input, output)
+    @input, @output = input, output
+  end
+
+  def readpartial(*a, &b)
+    data = @input.readpartial(*a,&b)
+    @output << data
+    data
+  end
+
+  def method_missing(method, *a, &b)
+    @input.send(method, *a, &b)
+  end
+end
+
+opts = Trollop::options do
+  opt :uuid, "The UUID of the stream.", :short => '-u', :type => String
+  opt :'content-type', "The content-type of the stream.", :short => '-c', :type => String, :default => 'text/plain'
+  opt :endpoint, "The endpoint of the ey_tea service.", :short => '-e', :type => String, :default => 'http://tea-meta.engineyard.com/'
+end
+
+Trollop::die :uuid, "is required" if opts[:uuid].nil?
+
+$stdin.sync  = true
+$stdout.sync = true
+
+input  = MultiplexedIO.new($stdin, $stdout)
+client = EY::Tea::Client.new(:endpoint => opts[:endpoint])
+
+client.up(input, opts[:uuid], opts[:'content-type'])

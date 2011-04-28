@@ -9,8 +9,8 @@ module EY
           super(inner_app)
         end
 
-        def up(io, uuid)
-          post("/#{uuid}", {'Content-Type' => 'text/plain', 'Transfer-Encoding' => 'chunked'}, io)
+        def up(io, uuid, content_type = 'text/plain')
+          post("/#{uuid}", {'Content-Type' => content_type, 'Transfer-Encoding' => 'chunked'}, io)
         end
 
         def down(uuid)

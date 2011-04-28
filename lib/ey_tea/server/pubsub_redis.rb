@@ -1,6 +1,3 @@
-require 'rubygems'
-require 'eventmachine'
-
 module EventMachine
   module Protocols
     class PubSubRedis < EventMachine::Connection

@@ -2,6 +2,7 @@ EY::Gem::Specification.new do |s|
   s.description = s.summary = "tee as a service"
 
   s.add_client_dependency 'rack-client'
+  s.add_client_dependency 'trollop'
 
   s.add_server_dependency 'sinatra'
   s.add_server_dependency 'thin'

@@ -19,6 +19,7 @@ gem 'rack-mux'
 ## Client Dependencies
 
 gem 'rack-client', :path => 'rack-client'
+gem 'trollop'
 
 ## Group Dependencies
 
@@ -26,4 +27,5 @@ group :test do
   gem 'rspec'
   gem 'rake'
   gem 'ruby-debug19'
+  gem 'ey_tea', :path => '.'
 end
