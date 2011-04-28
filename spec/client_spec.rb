@@ -7,108 +7,118 @@ describe EY::Tea::Client do
     EY::Tea::Client.new(:endpoint => EY::Tea::Server.mock_uri.to_s)
   end
 
+  def run(thread)
+    thread.join(0.1) if thread.alive?
+  end
+
   it "can stream an IO" do
+    uuid = rand(10_000).to_s
     o,i = IO.pipe
     i << "Hello, World!"
     i.close
 
-    subject.up(o, '123abc')
+    new_client.up(o, uuid)
 
     body = ''
-    subject.down('123abc') do |chunk|
+    new_client.down(uuid) do |chunk|
       body << chunk
     end
     body.should == 'Hello, World!'
   end
 
   it "can stream out before the incoming stream has finished." do
+    scheduler = Thread.current
+    uuid = rand(10_000).to_s
     o, i = IO.pipe
     i << 'Hello, '
 
-    threads = []
-    threads << Thread.new(subject, o) do |client, reader|
-      client.up(reader, '101')
+    up_thread = Thread.new(new_client, o) do |client, reader|
+      run scheduler
+      client.up(reader, uuid)
     end
 
-    threads << Thread.new(subject, i) do |client, writer|
-      client.down('101') do |chunk|
+    down_thread = Thread.new(new_client, i, scheduler) do |client, writer|
+      run scheduler
+      client.down(uuid) do |chunk|
         if chunk == 'Hello, '
           writer << 'World!'
           writer.close
+          run scheduler
         end
       end
     end
 
-    Thread.pass while threads.any? {|t| t.alive? }
+    run up_thread
+    run down_thread
+    run up_thread
+    run down_thread
   end
 
   it "streams already recieved data on an open stream to peers." do
+    scheduler = Thread.current
     uuid = rand(10_000).to_s
     o, i = IO.pipe
 
     i << 'Existing Data'
 
-    upstream_thread = Thread.new(subject, o) do |client, reader|
+    up_thread = Thread.new(subject, o) do |client, reader|
+      run scheduler
       client.up(reader, uuid)
     end
 
-    first_downstream = Thread.new(new_client) do |client|
+    down_thread = Thread.new(new_client) do |client|
+      run scheduler
       Thread.current[:data] = ''
 
       client.down(uuid) do |chunk|
         Thread.current[:data] << chunk
+        run scheduler
       end
     end
 
-    first_downstream.run until first_downstream[:data] == 'Existing Data'
+    run up_thread
+    run down_thread
+
+    down_thread[:data] == 'Existing Data'
   end
 
   it "streams the same data to all peers." do
+    scheduler = Thread.current
     uuid = rand(10_000).to_s
     o, i = IO.pipe
 
-    upstream_thread = Thread.new(subject, o) do |client, reader|
+    up_thread = Thread.new(new_client, o) do |client, reader|
       client.up(reader, uuid)
     end
 
-    downstream_threads = Array.new(5, new_client).map do
-      Thread.new(subject) do |client|
+    run up_thread
+
+    down_threads = Array.new(5, new_client).map do |c|
+      Thread.new(c) do |client|
+        Thread.current[:chunks] = []
+        run scheduler
+
         client.down(uuid) do |chunk|
-          Thread.current[:current_chunk] = chunk
-          Thread.stop
+          Thread.current[:chunks] << chunk
+          run scheduler
         end
       end
     end
 
     i << "First Part"
 
-    sleep 5 # pubsub seems to be laggy, WTF?!?
-
-    downstream_threads.each {|t| t.run }
-
-    sleep 0.1 until downstream_threads.all? {|t| t.status == 'sleep' }
-
-    downstream_threads.each {|t| t[:current_chunk].should == 'First Part' }
+    down_threads.each {|t| run t }
+    down_threads.each {|t| t[:chunks].should == ['First Part'] }
 
     i << "Second Part"
 
-    sleep 5
-
-    downstream_threads.each {|t| t.run }
-
-    sleep 0.1 until downstream_threads.all? {|t| t.status == 'sleep' }
-
-    downstream_threads.each {|t| t[:current_chunk].should == 'Second Part' }
+    down_threads.each {|t| run t }
+    down_threads.each {|t| t[:chunks].should == ['First Part', 'Second Part'] }
 
     i << "Third Part"
 
-    sleep 5
-
-    downstream_threads.each {|t| t.run }
-
-    sleep 0.1 until downstream_threads.all? {|t| t.status == 'sleep' }
-
-    downstream_threads.each {|t| t[:current_chunk].should == 'Third Part' }
+    down_threads.each {|t| run t }
+    down_threads.each {|t| t[:chunks].should == ['First Part', 'Second Part', 'Third Part'] }
 
     i.close
   end
