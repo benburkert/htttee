@@ -24,7 +24,7 @@ end
 opts = Trollop::options do
   opt :uuid, "The UUID of the stream.", :short => '-u', :type => String
   opt :'content-type', "The content-type of the stream.", :short => '-c', :type => String, :default => 'text/plain'
-  opt :endpoint, "The endpoint of the htttee service.", :short => '-e', :type => String, :default => 'http://tea-meta.engineyard.com/'
+  opt :endpoint, "The endpoint of the htttee service.", :short => '-e', :type => String, :default => 'http://htttee.engineyard.com/'
 end
 
 Trollop::die :uuid, "is required" if opts[:uuid].nil?
