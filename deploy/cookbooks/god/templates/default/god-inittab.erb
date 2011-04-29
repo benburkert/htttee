@@ -1,0 +1,3 @@
+# god config
+god:345:respawn:/usr/bin/god -c /etc/god/config -l /var/log/god.log --log-level info -D >> /root/god.log 2>&1
+god0:06:wait:/usr/bin/god quit

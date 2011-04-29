@@ -1,0 +1,41 @@
+user ey ey;
+worker_processes 4;
+pid /var/run/nginx.pid;
+
+events {
+  worker_connections 8192;
+  use epoll;
+}
+
+http {
+
+  upstream thins {
+    server unix:/tmp/thin.sock;
+  }
+
+  access_log  /var/log/foo.log;
+  error_log /var/bar.log debug;
+
+  server {
+    listen 80;
+    server_name *.amazonaws.com;
+
+    chunkin on;
+    proxy_buffering off;
+    chunked_transfer_encoding off;
+
+    location / {
+      proxy_pass        http://thins;
+      proxy_set_header  X-Real-IP  $remote_addr;
+      proxy_buffering off;
+      #chunked_transfer_encoding on;
+
+    }
+
+    error_page 411 = @my_411_error;
+    location @my_411_error {
+        proxy_buffering off;
+        chunkin_resume;
+    }
+  }
+}

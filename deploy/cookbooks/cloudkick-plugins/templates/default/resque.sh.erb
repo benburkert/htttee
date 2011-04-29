@@ -1,0 +1,4 @@
+#!/bin/sh
+export RACK_ENV=<%= @rack_env %>
+export REDIS_URI=<%= @redis_uri %>
+cd <%= @dir %> && bundle exec <%= @script %>
