@@ -75,24 +75,39 @@ module EY
         end
 
         def four_oh_four_response(env, body)
-          env['async.callback'].call [404, {}, body]
+          env['async.callback'].call [404, {'Transfer-Encoding' => 'chunked'}, body]
 
           body.succeed
         end
 
         def open_stream_response(env, uuid, body)
-          with_state_and_data_for(uuid) do |state, data|
-            if state == FIN
-              respond_with(env, body, data)
-            else
-              subscribe_and_stream(env, uuid, body, data)
+          start_response(env, body)
+          stream_data_to(body, data_key(uuid)) do
+            with_state_for(uuid) do |state|
+              if state == FIN
+                body.succeed
+              else
+                subscribe_and_stream(env, uuid, body)
+              end
             end
           end
         end
 
         def closed_stream_response(env, uuid, body)
-          redis.get data_key(uuid) do |data|
-            respond_with(env, body, data)
+          start_response(env, body)
+          stream_data_to(body, data_key(uuid)) do
+            body.succeed
+          end
+        end
+
+        def stream_data_to(body, key, offset = 0, chunk_size = 1024, &block)
+          redis.substr(key, offset, offset + chunk_size) do |chunk|
+            if chunk.nil? || chunk.empty?
+              yield
+            else
+              body.call [chunk]
+              stream_data_to(body, key, offset + chunk_size, chunk_size, &block)
+            end
           end
         end
 
@@ -101,16 +116,16 @@ module EY
           body.succeed
         end
 
-        def start_response(env, body, data)
-          env['async.callback'].call [200, {'Transfer-Encoding' => 'chunked'}, body]
+        def start_response(env, body, data = nil)
+          env['async.callback'].call [200, {'Transfer-Encoding' => 'chunked', 'Content-Type' => 'text/plain'}, body]
 
           body.call [data] unless data.nil? || data.empty?
         end
 
-        def subscribe_and_stream(env, uuid, body, data)
+        def subscribe_and_stream(env, uuid, body)
           subscribe channel(uuid) do |type, message, *extra|
             case type
-            when SUBSCRIBE then start_response(env, body, data)
+            #when SUBSCRIBE then start_response(env, body, data)
             when FIN       then body.succeed
             when STREAMING then body.call [message]
             end
