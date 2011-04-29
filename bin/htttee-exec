@@ -1,0 +1,18 @@
+#!/bin/sh
+
+stdout_uuid="$(head -c4096 /dev/urandom | sha256sum | awk '{ print $1 }')"
+stderr_uuid="$(head -c4096 /dev/urandom | sha256sum | awk '{ print $1 }')"
+
+mkfifo $stdout_uuid
+mkfifo $stderr_uuid
+
+bin/htttee --uuid $stdout_uuid --endpoint http://127.0.0.1:9292/ < $stdout_uuid &
+bin/htttee --uuid $stderr_uuid --endpoint http://127.0.0.1:9292/ < $stderr_uuid &
+
+echo "stdout: http://127.0.0.1:9292/$stdout_uuid"
+echo "stderr: http://127.0.0.1:9292/$stderr_uuid"
+
+exec 1>$stdout_uuid
+exec 2>$stderr_uuid
+
+exec $*

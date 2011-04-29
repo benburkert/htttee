@@ -106,7 +106,7 @@ module EY
               yield
             else
               body.call [chunk]
-              stream_data_to(body, key, offset + chunk_size, chunk_size, &block)
+              stream_data_to(body, key, offset + chunk.size, chunk_size, &block)
             end
           end
         end
