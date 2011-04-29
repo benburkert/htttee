@@ -1,8 +1,8 @@
 $:.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'bundler/setup'
 
-require 'ey_tea/server'
-require 'ey_tea/client'
+require 'htttee/server'
+require 'htttee/client'
 
 require 'digest/sha2'
 

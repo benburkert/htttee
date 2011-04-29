@@ -34,7 +34,7 @@ module EY
       end
 
       def self.mock!
-        require 'ey_tea/server/mock'
+        require 'htttee/server/mock'
         @mocking = true
 
         @mock_uri = Mock.boot_forking_server
@@ -62,13 +62,13 @@ module EY
   end
 end
 
-require 'ey_tea/server/ext/em-redis'
-require 'ey_tea/server/ext/thin'
+require 'htttee/server/ext/em-redis'
+require 'htttee/server/ext/thin'
 
-require 'ey_tea/server/pubsub_redis'
+require 'htttee/server/pubsub_redis'
 
-require 'ey_tea/server/api'
-require 'ey_tea/server/chunked_body'
+require 'htttee/server/api'
+require 'htttee/server/chunked_body'
 
-require 'ey_tea/server/middleware/async_fixer'
-require 'ey_tea/server/middleware/dechunker'
+require 'htttee/server/middleware/async_fixer'
+require 'htttee/server/middleware/dechunker'

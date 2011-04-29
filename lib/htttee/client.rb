@@ -12,5 +12,5 @@ module EY
   end
 end
 
-require 'ey_tea/client/ext/net/http'
-require 'ey_tea/client/consumer'
+require 'htttee/client/ext/net/http'
+require 'htttee/client/consumer'
