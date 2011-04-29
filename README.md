@@ -24,7 +24,7 @@ or browser via `htttee`.
 
 In one terminal:
 
-    ruby -e "1.upto(100) {|i| puts i; \$stdout.flush; sleep(i/100.0)}" | 
+    ruby -e "STDOUT.sync = true; 1.upto(100) {|i| puts i; sleep(i/100.0)}" | \
       htttee -e http://localhost:3000 -u SOMEUNIQUESTRING
 
 In another terminal:
