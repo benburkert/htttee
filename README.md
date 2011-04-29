@@ -1,6 +1,25 @@
 # htttee - unix's tee-as-a-service
 
 
+## What is 'tee'?
+
+    $ man tee
+    NAME
+         tee -- pipe fitting
+    DESCRIPTION
+         The tee utility copies standard input to standard output, making a copy in zero or more files.  The output is unbuffered.
+
+It's very handy for piping the output of a script to a file and to STDOUT simultaneously.
+
+## What is 'htttee'?
+
+Instead of piping to a file, `htttee` pipes to a web service. Consumers can then stream the
+piped output via the `htttee` command line. Alternately, the streamed output could be viewed
+within a browser.
+
+That is, a streaming output locked within a server can be made accessible to a console
+or browser via `htttee`.
+
 ## Usage
 
 In one terminal:
@@ -38,8 +57,12 @@ final few numbers chunked through:
     Connection closed by foreign host.
 
 
+## Running the server
 
-
+    git clone git://github.com/benburkert/htttee.git
+    cd htttee
+    bundle
+    thin start
 
 ## Development
 
