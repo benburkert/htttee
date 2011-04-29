@@ -41,7 +41,7 @@ module EY
         end
 
         def http_user_agent
-          "ey_tea (rack-client #{Rack::Client::VERSION} (app: #{@app.class}))"
+          "htttee (rack-client #{Rack::Client::VERSION} (app: #{@app.class}))"
         end
       end
     end
