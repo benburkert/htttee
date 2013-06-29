@@ -69,7 +69,8 @@ module EY
         def set_input_each(env, uuid, body)
           rack_input(env).each do |chunk|
             unless chunk.empty?
-              redis.pipeline(['append', data_key(uuid), chunk], ['publish', channel(uuid), Yajl::Encoder.encode([STREAMING, chunk])])
+              redis.pipeline ['append', data_key(uuid), chunk],
+                             ['publish', channel(uuid), encode(STREAMING, chunk)]
             end
           end
         end
@@ -161,11 +162,11 @@ module EY
         end
 
         def publish(channel, data)
-          redis.publish channel, Yajl::Encoder.encode([STREAMING, data])
+          redis.publish channel, encode(STREAMING, data)
         end
 
         def finish(channel)
-          redis.publish channel, Yajl::Encoder.encode([FIN])
+          redis.publish channel, encode(FIN)
         end
 
         def subscribe(channel, &block)
@@ -194,6 +195,10 @@ module EY
 
         def redis
           @redis ||= EM::Protocols::Redis.connect(@host, @port)
+        end
+
+        def encode(*parts)
+          Yajl::Encoder.encode(parts)
         end
       end
     end
