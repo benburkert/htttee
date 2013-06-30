@@ -123,4 +123,60 @@ describe HTTTee::Client do
     i.close
   end
 
+  it "gets the SSE setup page if the client supports SSE." do
+    scheduler = Thread.current
+    uuid = rand(10_000).to_s
+    o, i = IO.pipe
+    i << 'Ignore Me!'
+    i.close
+
+    up_thread = Thread.new(new_client, o) do |client, reader|
+      client.up(reader, uuid)
+    end
+
+    run up_thread
+
+    client = Rack::Client.new(HTTTee::Server.mock_uri.to_s)
+
+    response = client.get(uuid, 'User-Agent' => 'OctoWebKit', 'Accept' => 'text/html')
+
+    response.headers['Content-Type'].should == 'text/html'
+    response.body =~ /new EventSource/
+  end
+
+  it "gets the SSE stream response when making an SSE request." do
+    scheduler = Thread.current
+    uuid = rand(10_000).to_s
+    o, i = IO.pipe
+    i << "Don't Ignore Me!\nPlease!"
+    i.close
+
+    up_thread = Thread.new(new_client, o) do |client, reader|
+      client.up(reader, uuid)
+    end
+
+    run up_thread
+
+    client = Rack::Client.new(HTTTee::Server.mock_uri.to_s)
+
+    response = client.get(uuid, 'User-Agent' => 'OctoWebKit', 'Accept' => 'text/event-stream')
+
+    response.headers['Content-Type'].should == 'text/event-stream'
+
+    response.body.should == <<-BODY
+event: message
+data: Don't Ignore Me!
+
+event: ctrl
+data: newline
+
+event: message
+data: Please!
+
+event: ctrl
+data: eof
+
+    BODY
+  end
+
 end

@@ -21,6 +21,7 @@ module HTTTee
         builder.use AsyncFixer
         builder.use Dechunker
         builder.use Rechunker
+        builder.use SSE::Middleware
         builder.run Server.api
       end
     end
@@ -30,6 +31,7 @@ module HTTTee
         builder.use Mock::ThinMuxer
         builder.use Mock::EchoUri
         builder.use Rechunker
+        builder.use SSE::Middleware
         builder.run Server.rack_app
       end
     end
@@ -73,3 +75,6 @@ require 'htttee/server/chunked_body'
 require 'htttee/server/middleware/async_fixer'
 require 'htttee/server/middleware/dechunker'
 require 'htttee/server/middleware/rechunker'
+
+require 'htttee/server/sse/body'
+require 'htttee/server/sse/middleware'

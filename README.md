@@ -56,6 +56,16 @@ final few numbers chunked through:
     
     Connection closed by foreign host.
 
+## Browser Support
+
+Some browsers don't behave well when recieving a chunked response of plain/text data. For example,
+lots of them buffer the first 256 bytes or so before doing anything. [SSE](http://www.html5rocks.com/en/tutorials/eventsource/basics/)
+is used to get around this browser limitation. If the request for a stream originates from a browser
+that supports SSE and the request is for 'text/html' then SSE setup page is returned. That page
+has a little javascript for setting up the stream and parsing the events. The simplicity of the SSE
+protocol makes it difficult to sanely send newline characters. So there is a `ctrl` event has been
+added that makes it easy to send newline characters and other 'special' characters. This could even
+allow for terminal emulation in the future.
 
 ## Running the server
 
