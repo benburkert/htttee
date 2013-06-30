@@ -73,6 +73,10 @@ module EventMachine
         # These commands should be first
         auth_and_select_db
       end
+
+      def unbind
+        @logger.debug { "Disconnected" }  if @logger
+      end
     end
   end
 end
