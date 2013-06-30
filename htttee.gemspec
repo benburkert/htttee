@@ -1,6 +1,8 @@
+require File.join(File.dirname(__FILE__), 'lib', 'htttee', 'version')
+
 Gem::Specification.new do |s|
   s.name        = "htttee"
-  s.version     = '0.5.0'
+  s.version     = HTTTee::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Ben Burkert"]
   s.email       = ["ben@benburkert.com"]
