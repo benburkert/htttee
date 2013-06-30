@@ -14,18 +14,17 @@ module HTTTee
 
       def call(env)
         uuid = env['PATH_INFO'].sub(/^\//, '')
+        body = env['rack.response_body']
 
         case env['REQUEST_METHOD']
-        when 'POST' then post(env, uuid)
-        when 'GET'  then get(env, uuid)
+        when 'POST' then post(env, uuid, body)
+        when 'GET'  then get(env, uuid, body)
         end
 
         AsyncResponse
       end
 
-      def post(env, uuid)
-        body = Thin::DeferrableBody.new
-
+      def post(env, uuid, body)
         redis.set(state_key(uuid), STREAMING)
 
         set_input_callback(env, uuid, body)
@@ -33,9 +32,7 @@ module HTTTee
         set_input_each(env, uuid, body)
       end
 
-      def get(env, uuid)
-        body = ChunkedBody.new
-
+      def get(env, uuid, body)
         with_state_for(uuid) do |state|
           case state
           when NilClass   then four_oh_four_response(env, body)
@@ -168,7 +165,6 @@ module HTTTee
         redis.publish channel, encode(FIN)
       end
 
-      require 'debugger'
       def subscribe(channel, &block)
         conn = pubsub
         conn.subscribe channel do |type, chan, data|
