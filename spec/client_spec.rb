@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe EY::Tea::Client do
+describe HTTTee::Client do
   subject { @client }
 
   def new_client
-    EY::Tea::Client.new(:endpoint => EY::Tea::Server.mock_uri.to_s)
+    HTTTee::Client.new(:endpoint => HTTTee::Server.mock_uri.to_s)
   end
 
   def run(thread)

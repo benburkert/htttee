@@ -2,12 +2,10 @@ require 'net/http'
 require 'rack/client'
 #require 'uuidtools'
 
-module EY
-  module Tea
-    module Client
-      def self.new(*a)
-        Consumer.new(*a)
-      end
+module HTTTee
+  module Client
+    def self.new(*a)
+      Consumer.new(*a)
     end
   end
 end

@@ -24,7 +24,7 @@ end
 opts = Trollop::options do
   opt :uuid, "The UUID of the stream.", :short => '-u', :type => String
   opt :'content-type', "The content-type of the stream.", :short => '-c', :type => String, :default => 'text/plain'
-  opt :endpoint, "The endpoint of the htttee service.", :short => '-e', :type => String, :default => 'http://htttee.engineyard.com/'
+  opt :endpoint, "The endpoint of the htttee service.", :short => '-e', :type => String, :default => 'http://localhost:3000/'
   opt :quiet, "Don't echo to stdout.", :short => '-q', :default => false
 end
 
@@ -34,6 +34,6 @@ $stdin.sync  = true
 $stdout.sync = true
 
 input  = opts[:quiet] ? $stdin : MultiplexedIO.new($stdin, $stdout)
-client = EY::Tea::Client.new(:endpoint => opts[:endpoint])
+client = HTTTee::Client.new(:endpoint => opts[:endpoint])
 
 client.up(input, opts[:uuid], opts[:'content-type'])

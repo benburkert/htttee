@@ -1,4 +1,4 @@
-module TeaHelpers
+module HTTTeeHelpers
   class ThinMuxer
     def initialize(app)
       @app = Rack::Mux.new(thin_options)
