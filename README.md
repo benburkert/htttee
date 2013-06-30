@@ -29,7 +29,7 @@ In one terminal:
 
 In another terminal:
 
-    curl http://htttee.engineyard.com/SOMEUNIQUESTRING
+    curl http://localhost:3000/SOMEUNIQUESTRING
 
 Or to see the chunked information:
 
