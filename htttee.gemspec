@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency 'rack-client', '~> 0.3.1.pre.i'
+  s.add_dependency 'rack-client', '>= 0.4.2'
   s.add_dependency 'trollop'
 
   s.add_development_dependency 'sinatra'
@@ -26,5 +26,4 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'rake'
-  # s.add_development_dependency 'ruby-debug19'
 end
