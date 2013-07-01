@@ -9,14 +9,20 @@ module HTTTee
       end
 
       def up(io, uuid, content_type = 'text/plain')
-        post("/#{uuid}", {'Content-Type' => content_type, 'Transfer-Encoding' => 'chunked'}, io)
+        headers = {
+          'Content-Type'      => content_type,
+          'Transfer-Encoding' => 'chunked',
+          'Connection'        => 'Keep-Alive',
+        }
+
+        post("/#{uuid}", headers, io)
       end
 
       def down(uuid)
         get("/#{uuid}") do |status, headers, response_body|
           response_body.each do |chunk|
-          yield chunk
-        end
+            yield chunk
+          end
         end
       end
 
