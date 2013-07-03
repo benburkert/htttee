@@ -1,5 +1,7 @@
 # htttee - unix's tee-as-a-service
 
+[![Build Status](https://travis-ci.org/benburkert/htttee.png)](https://travis-ci.org/benburkert/htttee)
+
 
 ## What is 'tee'?
 
