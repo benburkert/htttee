@@ -60,6 +60,7 @@ module HTTTee
     source.addEventListener('ctrl', function(e) {
       if(e.data == 'newline') {
         data.innerHTML += "\\n";
+        data = $("<code></code>").insertAfter(data)[0];
       } else if(e.data == 'eof') {
         source.close();
       } else {
