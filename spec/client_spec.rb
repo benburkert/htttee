@@ -8,6 +8,10 @@ describe HTTTee::Client do
   end
 
   def run(thread)
+    if RUBY_VERSION =~ /^2\./
+      return Thread.pass if thread == Thread.main
+    end
+
     thread.join(0.1) if thread.alive?
   end
 
