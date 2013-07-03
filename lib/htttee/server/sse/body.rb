@@ -6,8 +6,12 @@ module HTTTee
 
         MESSAGE = 'message'
         CTRL    = 'ctrl'
-        NEWLINE = 'newline'
         EOF     = 'eof'
+
+        CTRL_TABLE = {
+          "\n" => 'newline',
+          "\r" => 'carriage return',
+        }
 
         def initialize(body)
           @body = body
@@ -20,11 +24,11 @@ module HTTTee
         end
 
         def send_chunk(chunk)
-          data, newline, remaining = chunk.partition("\n")
+          data, ctrl, remaining = chunk.partition(%r{\n|\r})
 
-          send_data(data)       unless data.empty?
-          send_ctrl(NEWLINE)    unless newline.empty?
-          send_chunk(remaining) unless remaining.empty?
+          send_data(data)             unless data.empty?
+          send_ctrl(CTRL_TABLE[ctrl]) unless ctrl.empty?
+          send_chunk(remaining)       unless remaining.empty?
         end
 
         def send_data(data)

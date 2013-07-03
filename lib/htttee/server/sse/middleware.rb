@@ -61,6 +61,8 @@ module HTTTee
       if(e.data == 'newline') {
         data.innerHTML += "\\n";
         data = $("<code></code>").insertAfter(data)[0];
+      } else if(e.data == 'carriage-return') {
+        data.innerHTML = '';
       } else if(e.data == 'eof') {
         source.close();
       } else {
