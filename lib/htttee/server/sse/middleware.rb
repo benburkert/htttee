@@ -44,12 +44,10 @@ module HTTTee
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 </head>
 <body><pre><code></code></pre>
-  <div id="bottom"></div>
   <script>
     var source = new EventSource(window.location.pathname);
     var body = $("html,body");
     var data = $("pre code")[0];
-    var bottom = document.getElementById('bottom');
 
     source.onmessage = function(e) {
       data.innerHTML += e.data;
@@ -62,13 +60,16 @@ module HTTTee
     source.addEventListener('ctrl', function(e) {
       if(e.data == 'newline') {
         data.innerHTML += "\\n";
-        bottom.scrollIntoView();
       } else if(e.data == 'eof') {
         source.close();
       } else {
         console.log(e);
       }
     }, false);
+
+    window.setInterval(function(){
+      window.scrollTo(0, document.body.scrollHeight);
+    }, 100);
 
   </script>
 </body>
