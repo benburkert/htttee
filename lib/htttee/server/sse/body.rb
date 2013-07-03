@@ -9,8 +9,9 @@ module HTTTee
         EOF     = 'eof'
 
         CTRL_TABLE = {
-          "\n" => 'newline',
-          "\r" => 'carriage return',
+          "\n"    => 'newline',
+          "\r"    => 'carriage-return',
+          "\r \n" => 'crlf',
         }
 
         def initialize(body)
@@ -24,7 +25,7 @@ module HTTTee
         end
 
         def send_chunk(chunk)
-          data, ctrl, remaining = chunk.partition(%r{\n|\r})
+          data, ctrl, remaining = chunk.partition(%r{\r \n|\n|\r})
 
           send_data(data)             unless data.empty?
           send_ctrl(CTRL_TABLE[ctrl]) unless ctrl.empty?

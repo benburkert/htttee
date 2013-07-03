@@ -47,10 +47,21 @@ module HTTTee
   <script>
     var source = new EventSource(window.location.pathname);
     var body = $("html,body");
-    var data = $("pre code")[0];
+    var cursor = $("pre code")[0];
+    var resetLine = false;
+
+    function append(data) {
+      if(resetLine == true) {
+        cursor.innerHTML = data;
+      } else {
+        cursor.innerHTML += data;
+      }
+
+      resetLine = false;
+    }
 
     source.onmessage = function(e) {
-      data.innerHTML += e.data;
+      append(e.data);
     };
 
     source.onerror = function(e) {
@@ -59,10 +70,10 @@ module HTTTee
 
     source.addEventListener('ctrl', function(e) {
       if(e.data == 'newline') {
-        data.innerHTML += "\\n";
-        data = $("<code></code>").insertAfter(data)[0];
-      } else if(e.data == 'carriage-return') {
-        data.innerHTML = '';
+        append("\\n");
+        cursor = $("<code></code>").insertAfter(cursor)[0];
+      } else if(e.data == 'crlf' || e.data == 'carriage-return') {
+        resetLine = true;
       } else if(e.data == 'eof') {
         source.close();
       } else {
