@@ -120,12 +120,16 @@ module HTTTee
       end
 
       def subscribe_and_stream(env, uuid, body)
-        subscribe channel(uuid) do |type, message, *extra|
+        conn = subscribe channel(uuid) do |type, message, *extra|
           case type
             #when SUBSCRIBE then start_response(env, body, data)
           when FIN       then body.succeed
           when STREAMING then body.call [message]
           end
+        end
+
+        async_close(env).callback do
+          conn.close_connection
         end
       end
 
@@ -157,6 +161,10 @@ module HTTTee
         rack_env['async.callback']
       end
 
+      def async_close(rack_env)
+        rack_env['async.close']
+      end
+
       def publish(channel, data)
         redis.publish channel, encode(STREAMING, data)
       end
@@ -167,6 +175,7 @@ module HTTTee
 
       def subscribe(channel, &block)
         conn = pubsub
+
         conn.subscribe channel do |type, chan, data|
           case type.upcase
           when SUBSCRIBE then block.call(SUBSCRIBE, chan)
@@ -182,6 +191,8 @@ module HTTTee
             ''
           end
         end
+
+        conn
       end
 
       def pubsub
