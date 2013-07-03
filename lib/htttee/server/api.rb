@@ -51,6 +51,12 @@ module HTTTee
             body.succeed
           end
         end
+
+        async_close(env).callback do
+          redis.set(state_key(uuid), FIN) do
+            finish(channel(uuid))
+          end
+        end
       end
 
       def set_input_errback(env, uuid, body)
