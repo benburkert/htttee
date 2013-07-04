@@ -41,10 +41,12 @@ describe HTTTee::Client do
       client.up(reader, uuid)
     end
 
+    client_called = false
     down_thread = Thread.new(new_client, i, scheduler) do |client, writer|
       run scheduler
       client.down(uuid) do |chunk|
         if chunk == 'Hello, '
+          client_called = true
           writer << 'World!'
           writer.close
           run scheduler
@@ -52,10 +54,48 @@ describe HTTTee::Client do
       end
     end
 
+    client_called.should be_false
+
     run up_thread
     run down_thread
     run up_thread
     run down_thread
+
+    client_called.should be_true
+  end
+
+  it "can accept a stream containing CRLFs." do
+    scheduler = Thread.current
+    uuid = rand(10_000).to_s
+    o, i = IO.pipe
+    i << "Hello, \r\n\r\nthere"
+
+    up_thread = Thread.new(new_client, o) do |client, reader|
+      run scheduler
+      client.up(reader, uuid)
+    end
+
+    client_called = false
+
+    down_thread = Thread.new(new_client, i, scheduler) do |client, writer|
+      run scheduler
+      client.down(uuid) do |chunk|
+        if chunk == "Hello, \r\n\r\nthere"
+          client_called = true
+          writer.close
+          run scheduler
+        end
+      end
+    end
+
+    client_called.should be_false
+
+    run up_thread
+    run down_thread
+    run up_thread
+    run down_thread
+
+    client_called.should be_true
   end
 
   it "streams already recieved data on an open stream to peers." do

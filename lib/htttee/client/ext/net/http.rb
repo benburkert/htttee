@@ -11,12 +11,6 @@ module Net
         if chunked?
           begin
             while s = f.readpartial(1024)
-              # thin's parser doesn't understand chunked requests,
-              # and a valid CRLF at the end of a message chunk can
-              # trick the the parser into thinking it's the end of
-              # the request. So this lame hack sorta fixes it.
-              s.gsub!(/\r\n/, "\r \n")
-
               sock.write(sprintf("%x\r\n", s.length) << s << "\r\n")
             end
           rescue EOFError

@@ -48,7 +48,8 @@ module HTTTee
               @input.succeed
               return
             elsif remainder.size >= length + 2 # length + CRLF
-              data, @buffer = remainder.split(CRLF, 2)
+              data, @buffer = remainder[0...length], remainder[(length+2)..-1]
+
               blk.call(data)
             else
               return
