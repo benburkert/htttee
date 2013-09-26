@@ -70,7 +70,6 @@ describe HTTTee::Client do
     i << "Hello, \r\n\r\nthere"
 
     up_thread = Thread.new(new_client, o) do |client, reader|
-      run scheduler
       client.up(reader, uuid)
     end
 
@@ -105,7 +104,6 @@ describe HTTTee::Client do
     i << 'Existing Data'
 
     up_thread = Thread.new(subject, o) do |client, reader|
-      run scheduler
       client.up(reader, uuid)
     end
 
@@ -149,16 +147,19 @@ describe HTTTee::Client do
     end
 
     i << "First Part"
+    run up_thread
 
     down_threads.each {|t| run t }
     down_threads.each {|t| t[:chunks].should == ['First Part'] }
 
     i << "Second Part"
+    run up_thread
 
     down_threads.each {|t| run t }
     down_threads.each {|t| t[:chunks].should == ['First Part', 'Second Part'] }
 
     i << "Third Part"
+    run up_thread
 
     down_threads.each {|t| run t }
     down_threads.each {|t| t[:chunks].should == ['First Part', 'Second Part', 'Third Part'] }
