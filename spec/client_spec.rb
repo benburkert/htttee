@@ -37,7 +37,6 @@ describe HTTTee::Client do
     i << 'Hello, '
 
     up_thread = Thread.new(new_client, o) do |client, reader|
-      run scheduler
       client.up(reader, uuid)
     end
 

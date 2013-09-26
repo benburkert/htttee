@@ -1,5 +1,7 @@
 module Thin
   class DeferredRequest < Request
+    CRLF = "\r\n"
+
     def parse(data)
       if @parser.finished?  # Header finished, can only be some more body
         body << data
@@ -12,8 +14,7 @@ module Thin
         if @parser.finished?
           return super(data) unless @env['HTTP_TRANSFER_ENCODING'] == 'chunked'
 
-          _, initial_body = @data.split("\r\n\r\n")
-          initial_body ||= ''
+          initial_body = @data.partition(CRLF * 2)[2] || ''
 
           @body = DeferrableBody.new(initial_body)
 
