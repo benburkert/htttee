@@ -1,0 +1,4 @@
+#!/bin/bash
+
+exec bundle exec thinicorn start --rackup config.ru \
+                                 --daemonize

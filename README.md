@@ -74,7 +74,7 @@ allow for terminal emulation in the future.
     git clone git://github.com/benburkert/htttee.git
     cd htttee
     bundle
-    thin start
+    script/server
 
 ## Development
 
