@@ -2,6 +2,7 @@ require 'thin'
 require 'yajl'
 require 'sinatra/base'
 require 'em-redis'
+require 'sinatra_auth_github'
 
 EM.epoll
 
@@ -18,6 +19,7 @@ module HTTTee
 
     def self.rack_app
       Rack::Builder.app do |builder|
+        builder.use Auth::Middleware
         builder.use AsyncFixer
         builder.use Dechunker
         builder.use Rechunker
@@ -31,7 +33,6 @@ module HTTTee
         builder.use Mock::ThinMuxer
         builder.use Mock::EchoUri
         builder.use Rechunker
-        builder.use SSE::Middleware
         builder.run Server.rack_app
       end
     end
@@ -75,6 +76,9 @@ require 'htttee/server/chunked_body'
 require 'htttee/server/middleware/async_fixer'
 require 'htttee/server/middleware/dechunker'
 require 'htttee/server/middleware/rechunker'
+
+require 'htttee/server/auth/app'
+require 'htttee/server/auth/middleware'
 
 require 'htttee/server/sse/body'
 require 'htttee/server/sse/middleware'

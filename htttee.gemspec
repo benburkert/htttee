@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'em-redis'
   s.add_development_dependency 'yajl-ruby'
   s.add_development_dependency 'rack-mux'
+  s.add_development_dependency 'sinatra_auth_github'
 
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'rake'
