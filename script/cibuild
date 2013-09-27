@@ -1,0 +1,24 @@
+#!/bin/bash
+# Usage: script/cibuild
+# CI build script
+#
+set -e
+
+rm -rf log
+mkdir -p log
+
+echo "Tests started at..."
+date "+%H:%M:%S"
+
+# clean out the ruby environment
+export PATH="/usr/share/rbenv/shims:$PATH"
+export RUBYLIB=
+export RUBYOPT=
+export RBENV_VERSION="2.0.0"
+
+echo "Using..."
+ruby -v
+
+script/bootstrap
+
+bundle exec rake
