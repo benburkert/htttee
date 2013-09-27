@@ -1,3 +1,4 @@
+require 'uri'
 require 'thin'
 require 'yajl'
 require 'sinatra/base'
@@ -13,8 +14,17 @@ module HTTTee
       mocking? ? mock_app : rack_app
     end
 
-    def self.api(host = (ENV['REDIS_HOST'] || 'localhost' ), port = (ENV['REDIS_PORT'] || 6379).to_i)
+    def self.api(host = redis_url.host, port = redis_url.port)
       Api.new(host, port)
+    end
+
+    def self.redis_url
+      return URI.parse(ENV['REDIS_URL']) if ENV['REDIS_URL']
+
+      host = ENV['REDIS_HOST'] || 'localhost'
+      port = ENV['REDIS_PORT'] || 6379
+
+      URI.parse("redis://#{host}:#{port}")
     end
 
     def self.rack_app
