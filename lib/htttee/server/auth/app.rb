@@ -10,10 +10,17 @@ module HTTTee
           :client_id => ENV['GITHUB_CLIENT_ID'],
         }
 
+        set :github_org, ENV['GITHUB_ORG']
+
         register Sinatra::Auth::Github
 
         get '*' do
-          authenticate!
+          if settings.github_org?
+            github_organization_authenticate!(settings.github_org)
+          else
+            authenticate!
+          end
+
           pass
         end
 
