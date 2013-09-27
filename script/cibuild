@@ -14,7 +14,7 @@ date "+%H:%M:%S"
 export PATH="/usr/share/rbenv/shims:$PATH"
 export RUBYLIB=
 export RUBYOPT=
-export RBENV_VERSION="2.0.0"
+export RBENV_VERSION="2.0.0-p0"
 
 echo "Using..."
 ruby -v
