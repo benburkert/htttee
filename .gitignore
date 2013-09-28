@@ -1,5 +1,7 @@
 .redcar
 .DS_Store
 
-Gemfile.lock
 pkg
+tmp
+stubs
+log
