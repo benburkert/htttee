@@ -2,4 +2,4 @@
 
 mkdir -p tmp/pids log
 
-bundle install --binstubs stubs
+bundle install
