@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/benburkert/thinicorn
-  revision: 36eca94592264eb0350ee8bcda4ddd0a59bcaf73
+  revision: adcd8bcee405e8c9fc853343c0fe70366e4d0b8c
   specs:
     thinicorn (0.0.0)
       posix-spawn
@@ -8,7 +8,7 @@ GIT
 
 GIT
   remote: https://github.com/eventmachine/eventmachine
-  revision: 8338ceb4e454fd75a938afed7325aefa73d8256d
+  revision: 848638c2759dcee4eb53b08358a779bb8553ae32
   specs:
     eventmachine (1.0.3)
 
@@ -59,10 +59,10 @@ GEM
     sinatra_auth_github (1.0.0)
       sinatra (~> 1.0)
       warden-github (~> 1.0)
-    thin (1.5.1)
+    thin (1.6.0)
       daemons (>= 1.0.9)
-      eventmachine (>= 0.12.6)
-      rack (>= 1.0.0)
+      eventmachine (>= 1.0.0)
+      rack (>= 1.5.0)
     tilt (1.4.1)
     trollop (2.0)
     warden (1.2.3)
