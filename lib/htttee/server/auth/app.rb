@@ -4,6 +4,8 @@ module HTTTee
       class App < Sinatra::Base
         enable :sessions
 
+        set :session_secret, ENV['SESSION_SECRET'] if ENV['SESSION_SECRET']
+
         set :github_options, {
           :scopes    => "user",
           :secret    => ENV['GITHUB_CLIENT_SECRET'],
