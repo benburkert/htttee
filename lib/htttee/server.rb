@@ -4,6 +4,7 @@ require 'yajl'
 require 'sinatra/base'
 require 'em-redis'
 require 'sinatra_auth_github'
+require 'rack/ssl'
 
 EM.epoll
 
@@ -29,6 +30,7 @@ module HTTTee
 
     def self.rack_app
       Rack::Builder.app do |builder|
+        builder.use Rack::SSL if ENV['SSL']
         builder.use Auth::Middleware
         builder.use AsyncFixer
         builder.use Dechunker
