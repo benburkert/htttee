@@ -40,6 +40,8 @@ GEM
       rack
     rack-protection (1.5.0)
       rack
+    rack-ssl (1.3.3)
+      rack
     rake (10.1.0)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
@@ -80,6 +82,7 @@ DEPENDENCIES
   eventmachine!
   htttee!
   rack-mux
+  rack-ssl
   rake
   rspec
   sinatra
