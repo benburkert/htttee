@@ -2,4 +2,8 @@
 
 mkdir -p tmp/pids log
 
-bundle install
+if [[ -f bin/htttee-rbexec ]] ; then
+  bin/htttee-rbexec bundle install --local --path vendor/gems
+else
+  bundle install --local --path vendor/gems
+fi
