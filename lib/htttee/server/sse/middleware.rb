@@ -2,6 +2,18 @@ module HTTTee
   module Server
     module SSE
       class Middleware
+
+        SHELL_HEADERS = {
+          'Content-Type' => 'text/html',
+          'Connection'   => 'keep-alive',
+        }
+
+        WRAPPER_HEADERS = {
+          'Content-Type'  => 'text/event-stream',
+          'Cache-Control' => 'no-cache',
+          'Connection'    => 'close',
+        }
+
         def initialize(app)
           @app = app
         end
@@ -22,7 +34,7 @@ module HTTTee
           cb = env['async.callback']
 
           env['async.callback'] = lambda do |(status, headers, body)|
-            cb.call([status, headers.merge('Content-Type' => 'text/event-stream', 'Connection' => 'Keep-Alive'), body])
+            cb.call([status, headers.merge(WRAPPER_HEADERS), body])
           end
         end
 
@@ -36,7 +48,7 @@ module HTTTee
         end
 
         def sse_shell
-          [200, {'Content-Type' => 'text/html'}, [<<-HTML]]
+          [200, SHELL_HEADERS, [<<-HTML]]
 <!DOCTYPE html>
 <html>
 <head>
